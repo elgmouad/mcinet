@@ -14,12 +14,12 @@ import control from './routes/control.route.js';
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT
+const port = process.env.PORT || 3000
 app.use(cors());
 app.use(cors({
-     origin: '*',
-     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-     credentials: true,
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
 }));
 
 app.use(express.json())
@@ -37,10 +37,10 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, async () => {
-    try{
+    try {
         connectSQL();
         console.log(`Server is running on ${port}`)
-    }catch(error) {
+    } catch (error) {
         console.log('Error while starting the server: ', error)
     }
 })
