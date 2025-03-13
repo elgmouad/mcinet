@@ -47,7 +47,7 @@ export const attributeOrderMission = (id, status) => async (dispatch) => {
     } catch (error) {
         dispatch({
             type: UPDATESTATUS_ORDERMISSION_FAILURE,
-            payload: error.response.data.message || 'On peu pas executer cette mission'
+            payload: error.response?.data.message || 'On peu pas executer cette mission'
         })
         return false
     }

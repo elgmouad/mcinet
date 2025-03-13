@@ -67,11 +67,12 @@ export const ListControl = ({ role, user}) => {
   useOnClickOutside(filterMenuRef, () => setFilterMenuOpen(false) )
   
   const handleSearchByEnterprise = (e) => {
-    const value = e.target
-    const result = orderMissions.filter(ent => (
-      // const res = value.enterprise === ent.name ? 
-      console.log(ent)
+    const v = e.target.value
+    console.log('Value from search: ', v)
+    const result = controls.filter(ent => (
+      ent.raison_sociale === v ? ent : controls
     ))
+    console.log("Searching: ",result)
   }
 
   // console.log("Control list: ",controls)
@@ -114,8 +115,10 @@ export const ListControl = ({ role, user}) => {
         year: 'numeric'
       })
     };
+
+    console.log('List Control: ', controls)
   return (
-    <div>
+    <div className='text-left'>
       <h1> 
         {
           message && (
@@ -127,9 +130,9 @@ export const ListControl = ({ role, user}) => {
       </h1>
       
       <div className="header flex items-center justify-between flex-wrap">
-        <h1 className='font-poppins font-bold text-3xl basis-full mb-4'>List des Control</h1>
+        <h1 className='font-poppins font-bold text-3xl basis-full  mb-4'>List des Control</h1>
         
-        <div className='basis-1/2'>
+        <div className='basis-1/2 max-md:basis-full'>
           <div className='searchBox flex justify-center items-center w-[334px] h-[38px] px-3 rounded-[10px] border-border border focus-within:border-blue overflow-hidden max-md:basis-full max-md:justify-center max-md:w-full'>
               <span className=''>
                   <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="#B6B6B6"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  className="hover:stroke-blue cursor-pointer icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -139,7 +142,7 @@ export const ListControl = ({ role, user}) => {
         </div>
         {/* filter menu */}
         {role !== "CADRE" &&
-        (<div className="filter flex items-center justify-end basis-1/2 w-full gap-4 my-2" >
+        (<div className="filter flex items-center justify-end basis-1/2 w-full gap-4 my-2 max-md:basis-full  max-md:justify-between" >
           <p className='font-medium text-base'>Trier par: </p>
 
           <div className='flex items-center justify-between gap-2 relative' ref={filterMenuRef}>
@@ -200,7 +203,8 @@ export const ListControl = ({ role, user}) => {
                   <p className='font-bold leading-[150%] text-[14px] text-[#727272] bg-transparent border-none'>{orderMission.status}</p>
                 </div>
                 <div className='table-base-header p-3 w-full bg-[#F9F9F9]  max-md:-order-2  max-md:w-min max-md:!basis-1/2 '>
-                  <div className="flex items-center justify-end gap-4 bg-transparent border-none">
+                  { orderMission.status !== 'Validé' &&
+                  (<div className="flex items-center justify-end gap-4 bg-transparent border-none">
                     <button
                       onClick={() => theNavigation('/dashboard/orderMissions/control/add', {state: {id: orderMission.mission_id}})}
                       className=" flex gap-2 px-3 py-2 bg-bg-blue text-blue font-medium font-poppins text-base rounded-[10px] hover:bg-blue hover:text-white transition-colors"
@@ -208,7 +212,8 @@ export const ListControl = ({ role, user}) => {
                       <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"  strokeLinejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square-rounded-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z" /><path d="M15 12h-6" /><path d="M12 9v6" /></svg>
                       Control
                     </button>
-                  </div>
+                  </div>)
+                  }
                 </div>
               </div>
               

@@ -3,15 +3,20 @@
 @tailwind utilities;
 
 @layer utilities {
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-   /* Hide scrollbar for IE, Edge and Firefox */
-    .no-scrollbar {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+  .no-scrollbar::-webkit-scrollbar {
+    width: 8px !important;
   }
+  
+  .no-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(70, 134, 229, 1) !important;
+      border-radius: 10px !important;
+  }
+  .no-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Optional: make track transparent */
+  }
+  .no-scrollbar {
+    padding-right: 8px; /* Adjust as needed */
+}
 
   /* Triangle (Indicator) */
   .profile::after {

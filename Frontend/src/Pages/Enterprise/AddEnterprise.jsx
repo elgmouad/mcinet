@@ -25,7 +25,43 @@ function AddEnterprise() {
       secteur_entreprise: "",
       zone_industrielle: "",
   })
-  
+  const provinces = [
+    "Province...",
+    "Oujda-Angad",
+    "Berkane",
+    "Taourirt",
+    "Jerada",
+    "Figuig"
+  ];
+  const talleEntreprises = [
+    "Taille Entreprise...",
+    "Moyennes entreprises (ME)",
+    "Petites entreprises (PE)",
+    "Très petites entreprises (TPE)",
+    "Grandes entreprises (GE)"
+  ];
+  const formeJuridique = [
+    "La Société à Responsabilité Limitée (SARL)",
+    "SARL Associé unique",
+    "La Société anonyme",
+    "La Société en Nom Collectif",
+    "Coopérative",
+    "L’entreprise individuelle"
+  ];
+  const sectors = [
+    "Secteur Entreprise...",
+    "Construction",
+    "IMM",
+    "Agroalimentaire",
+    "Automobile",
+    "Electrique",
+    "Chimie",
+    "Textile et Habillement",
+    "Parachimie",
+    "Plasturgie",
+    "Electronique"
+  ];
+
   useEffect(() => {
     if (theLocation.state?.data) {
       setEditMode(theLocation.state.isEdit);
@@ -40,6 +76,7 @@ function AddEnterprise() {
       ...prev,
       [name]: value
     }))
+    
   }
   const handleIgnore = (e) => {
     e.preventDefault()
@@ -50,7 +87,6 @@ function AddEnterprise() {
   }
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
     if(editMode) {
       const success = await dispatch(updateEntreprise(Entreprise.ICE, Entreprise))
       if(success) theNavigate('/dashboard/entreprise/list')
@@ -74,7 +110,7 @@ function AddEnterprise() {
         className="bg-white rounded-lg my-4"
       >
         
-        <div className="lg:flex lg:gap-2">
+        <div className="lg:flex flex-col lg:gap-2">
           <div className=" flex flex-wrap basis-[60%] gap-6 mb-4">
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Raison Sociale *</label>
@@ -85,7 +121,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Raison Sociale..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
@@ -97,7 +133,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="ICE..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
@@ -105,37 +141,44 @@ function AddEnterprise() {
               <input
                 type="text"
                 name="region"
-                value={Entreprise.region}
+                value={'Oriental'}
                 onChange={handleEntrepriseChange}
                 placeholder="Region..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                disabled
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Province/Prefecture *</label>
-              <input
-                type="text"
+              <select 
                 name="province_prefecture"
-                value={Entreprise.province_prefecture}
                 onChange={handleEntrepriseChange}
-                placeholder="Province/Prefecture..."
-                className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
-              />
+                value={Entreprise.province_prefecture}
+                id="prov" 
+                className="border rounded-lg px-4 py-2 focus:outline-blue">
+                {
+                  provinces.map((province, i) => (
+                    <option key={i} value={province} className="border rounded-lg px-4 py-2 focus:outline-blue">{province}</option>
+                  ))
+                }
+              </select>
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Zone Industrielle *</label>
-              <input
-                type="text"
+              <select 
                 name="zone_industrielle"
                 value={Entreprise.zone_industrielle}
                 onChange={handleEntrepriseChange}
-                placeholder="Zone Industrielle..."
+                defaultValue={'Zone Industrielle...'}
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
-              />
+              >
+                <option value={null}>Zone Industrielle...</option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
             </div>
+
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Adresse Siege *</label>
               <input
@@ -145,32 +188,41 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Adresse Siege..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Taille Entreprise*</label>
-              <input
-                type="text"
+
+              <select 
                 name="taille_entreprise"
                 value={Entreprise.taille_entreprise}
                 onChange={handleEntrepriseChange}
-                placeholder="Taille Entreprise..."
-                className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
-              />
+                className="border rounded-lg px-4 py-2 focus:outline-blue">
+                {
+                  talleEntreprises.map((t, i) => (
+                    <option key={i} value={t} className="border rounded-lg px-4 py-2 focus:outline-blue">
+                      {t}
+                    </option>
+                  ))
+                }
+              </select>
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Forme Juridique*</label>
-              <input
-                type="text"
+              <select 
                 name="forme_juridique"
                 value={Entreprise.forme_juridique}
                 onChange={handleEntrepriseChange}
-                placeholder="Forme Juridique..."
-                className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
-              />
+                className="border rounded-lg px-4 py-2 focus:outline-blue">
+                {
+                  formeJuridique.map((f, i) => (
+                    <option key={i} value={f} className="border rounded-lg px-4 py-2 focus:outline-blue">
+                      {f}
+                    </option>
+                  ))
+                }
+              </select>
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Numero RC *</label>
@@ -181,7 +233,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Numero RC..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
@@ -193,7 +245,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Identifiant Fiscal..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
@@ -205,7 +257,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Numero CNSS..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
@@ -217,7 +269,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Telephone..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
@@ -229,20 +281,26 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Email..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Secteur Entreprise *</label>
-              <input
-                type="text"
+              <select 
                 name="secteur_entreprise"
                 value={Entreprise.secteur_entreprise}
                 onChange={handleEntrepriseChange}
-                placeholder="Secteur Entreprise..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
-              />
+                defaultValue={"Secteur Entreprise"}
+                >
+                {
+                  sectors.map((sector, i) => (
+                    <option key={i} value={sector} className="border !rounded-lg overflow-hidden px-4 py-2 focus:outline-blue">
+                      {sector}
+                    </option>
+                  ))
+                }
+              </select>
             </div>
             <div className=" flex flex-col grow basis-auto">
               <label className="font-medium text-sm mb-1">Point Contact Nom *</label>
@@ -253,7 +311,7 @@ function AddEnterprise() {
                 onChange={handleEntrepriseChange}
                 placeholder="Point Contact Nom..."
                 className="border rounded-lg px-4 py-2 focus:outline-blue"
-                
+                required
               />
             </div>
           </div>

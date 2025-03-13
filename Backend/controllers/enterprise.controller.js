@@ -1,8 +1,10 @@
 import { connectSQL } from "../database/connectDB.js"
 
 export const getEnterpriseList = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
         const query = `
             SELECT * 
             FROM defaultdb.entreprise;
@@ -22,15 +24,45 @@ export const getEnterpriseList = async (req, res) => {
             message: 'internal server error !!',
             Error: error
         })
-    }
+    }finally {
+        connect.release(); // Toujours libérer la connexion
+      }
 }
 
-export const searchEnterprise = (req, res) => {
+export const getEnterpriseById = async (req, res) => {
+    const {id} = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        res.send('searching...')
+        // const connect = await connectSQL();
+        const query = `
+            SELECT *
+            FROM defaultdb.entreprise
+            WHERE ICE = ?
+            ;
+        `;
+        const [result] = await connect.query(query, id)
+
+        if(result.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: 'enterprise fetchd successfully!!',
+                enterprise: result
+            })
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'enterprise not found!!'
+            })
+        }
     } catch (error) {
-        
-    }
+        res.status(500).json({
+            success: false,
+            message: 'Server Error!!'
+        })
+    }finally {
+        connect.release(); // Toujours libérer la connexion
+      }
 }
 
 export const addEnterprise = async (req, res) => {
@@ -72,8 +104,10 @@ export const addEnterprise = async (req, res) => {
         message: "All fields are required!"
     })}
     
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL()
+        // const connect = await connectSQL()
         const query = `
         INSERT INTO entreprise(
             ICE, raison_sociale, adresse_siege, region, province_prefecture, taille_entreprise,
@@ -115,7 +149,9 @@ export const addEnterprise = async (req, res) => {
             message: 'Internal server Error'
         })
         throw error
-    }
+    }finally {
+        connect.release(); // Toujours libérer la connexion
+      }
 }
 
 export const updateEnterprise = async (req, res) => {
@@ -168,8 +204,11 @@ export const updateEnterprise = async (req, res) => {
         });
     }
 
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
     try {
-        const connect = await connectSQL(); // Establish database connection
+        // const connect = await connectSQL(); // Establish database connection
         const query = `
             UPDATE entreprise
             SET 
@@ -224,5 +263,7 @@ export const updateEnterprise = async (req, res) => {
             success: false,
             message: "Internal server error",
         });
-    }
+    }finally {
+        connect.release(); // Toujours libérer la connexion
+      }
 };

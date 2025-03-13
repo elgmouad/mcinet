@@ -1,5 +1,8 @@
 import Instance from '../../Api/axios';
 import { 
+    FETCH_ENTERPRISE_ID_REQUEST,
+    FETCH_ENTERPRISE_ID_SUCCESS,
+    FETCH_ENTERPRISE_ID_FAILURE,
     FETCH_ENTERPRISES_REQUEST,
     FETCH_ENTERPRISES_SUCCESS,
     FETCH_ENTERPRISES_FAILURE,
@@ -24,6 +27,23 @@ export const fetchEnterprise = () => async (dispatch) => {
         dispatch({
             type: FETCH_ENTERPRISES_FAILURE,
             payload: error.response.data.message || 'Error fetching enterprise list'
+        })
+    }
+}
+
+export const getEnterpriseById = (id) => async (dispatch) => {
+    try {
+        dispatch({type: FETCH_ENTERPRISE_ID_REQUEST})
+
+        const response = await Instance.post('/enterprise/getEnterprise', {id})
+        dispatch({
+            type: FETCH_ENTERPRISE_ID_SUCCESS,
+            payload: response?.data?.enterprise
+        })
+    } catch (error) {
+        dispatch({
+            type: FETCH_ENTERPRISE_ID_FAILURE,
+            payload: error?.response?.data.message || 'Error fetching enterprise'
         })
     }
 }

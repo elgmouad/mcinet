@@ -17,47 +17,48 @@ import AddEnterprise from '../Pages/Enterprise/AddEnterprise'
 import Unauthorized from '../Pages/unauthorized/unauthorized'
 import CarsList from '../Pages/Cars/CarsList'
 import ProfilePage from '../Pages/Profile/ProfilePage'
+import ControleForm from '../Pages/Mission/Control/controleForm'
 
 
 function AppRoutes() {
-  const {role, user} = useSelector( state => state.auth)
+  const { role, user } = useSelector(state => state.auth)
   console.log("App Rout accessed...")
   return (
     <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+      {/* Public Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
 
-        {/* Routes without protection */}
-        <Route path="/dashboard" element={<Dashboard />} >
-          <Route index element={<Statistic />} />
+      {/* Routes without protection */}
+      <Route path="/dashboard" element={<Dashboard />} >
+        <Route index element={<Statistic />} />
 
-          <Route path="orderMissions" >
-            <Route path="listMissionOrders" element={<ListMissions role={role} user={user} />} />
-            <Route path="addMissionOrders" element={<NewMission />} />
+        <Route path="orderMissions" >
+          <Route path="listMissionOrders" element={<ListMissions role={role} user={user} />} />
+          <Route path="addMissionOrders" element={<NewMission />} />
 
-            <Route path="control">
-              <Route path="list" element={<ListControl role={role} user={user} />} />
-              <Route path="add" element={<NewControl />} />
-            </Route>
+          <Route path="control">
+            <Route path="list" element={<ListControl role={role} user={user} />} />
+            <Route path="add" element={<ControleForm />} />
           </Route>
-          
-          <Route path="entreprise" >
-            <Route path="list" element={<ListEnterprise role={role} />} />
-            <Route path="add" element={<AddEnterprise />} />
-          </Route>
-
-          <Route path="voitures" element={<CarsList />} />
-
-          <Route path="profile" element={<ProfilePage />} />
         </Route>
-        
-        
-        {/* Routes with protections */}
-        {/* <Route element={<ProtectedRoute feature="dashboard" reqPermission="canViewDashboard" />}>
+
+        <Route path="entreprise" >
+          <Route path="list" element={<ListEnterprise role={role} />} />
+          <Route path="add" element={<AddEnterprise />} />
+        </Route>
+
+        <Route path="voitures" element={<CarsList />} />
+
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+
+
+      {/* Routes with protections */}
+      {/* <Route element={<ProtectedRoute feature="dashboard" reqPermission="canViewDashboard" />}>
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<Statistic />} />
             <Route path="orderMissions">
@@ -68,7 +69,7 @@ function AppRoutes() {
           </Route>
         </Route> */}
 
-{/* <Route 
+      {/* <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute feature="dashboard" reqPermission="canViewDashboard">

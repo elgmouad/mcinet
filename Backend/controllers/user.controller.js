@@ -1,8 +1,10 @@
 import { connectSQL } from "../database/connectDB.js"
 
 export const getUser = async (req, res)=> {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
 
         const query = `
             SELECT 
@@ -26,7 +28,9 @@ export const getUser = async (req, res)=> {
 
     } catch (error) {
         console.log("error getting users: ", error)
-    }
+    }finally {
+        connect.release(); // Toujours libérer la connexion
+      }
 }
 
 export const updateUser = async (req, res) => {

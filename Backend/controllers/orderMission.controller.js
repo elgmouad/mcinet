@@ -1,12 +1,13 @@
-
 import { connectSQL } from "../database/connectDB.js"
 
 
-export  const getOrderMission = async (req, res) => {
+export const getOrderMission = async (req, res) => {
     const { role, userid } = req.body
     console.log("Role Send to backend: ", role)
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
 
         const queryForAll = `
             SELECT 
@@ -49,7 +50,7 @@ export  const getOrderMission = async (req, res) => {
                         JOIN Object o ON m.Id_object = o.Id_object
                         WHERE m.status = 'En Cours' AND u.id_utilisateur = ?;`
 
-        if( role === 'CADRE') {
+        if (role === 'CADRE') {
             const [missions] = await connect.query(queryForCadre, [userid])
 
             res.status(200).json({
@@ -57,7 +58,7 @@ export  const getOrderMission = async (req, res) => {
                 message: 'Missions fetched successfully',
                 missions: missions
             })
-        }else {
+        } else {
             const [missions] = await connect.query(queryForAll)
 
             res.status(200).json({
@@ -72,12 +73,16 @@ export  const getOrderMission = async (req, res) => {
             message: 'Error fetching missions data',
             error: error.message
         })
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
 
 export const getServiceCars = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
         const [cars] = await connect.query('SELECT * FROM `service_vehicle`')
         console.log(cars)
 
@@ -85,21 +90,25 @@ export const getServiceCars = async (req, res) => {
             cars
         )
     } catch (error) {
-        
+
         res.status(500).json({
             success: false,
             massage: 'internal server error'
         })
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
 
 export const getObjectOptions = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
         const query = 'SELECT * FROM Object';
         const [objects] = await connect.query(query);
         console.log(objects)
-        
+
         res.status(200).json({
             success: true,
             objects: objects
@@ -107,15 +116,57 @@ export const getObjectOptions = async (req, res) => {
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
-export const getDestinations = async (req, res) => {
+
+export const getObjectTypesOptions = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+    // let connect;
     try {
-        const connect = await connectSQL();
+        // Établir la connexion à la base de données
+        // connect = await connectSQL();
+
+        // Récupérer et valider l'ID de l'objet
+        const { objectId } = req.params;
+        if (!objectId || isNaN(objectId)) {
+            return res.status(400).json({ error: 'Invalid objectId' });
+        }
+
+        // Requête SQL pour récupérer les types de contrôle
+        const query = 'SELECT * FROM Type_Objet WHERE object_id = ?';
+        const [controleTypes] = await connect.query(query, [objectId]);
+
+        // Gestion des résultats vides
+        if (controleTypes.length === 0) {
+            return res.status(404).json({ error: 'No control types found for this object' });
+        }
+
+        // Réponse JSON avec les types de contrôle
+        res.status(200).json({
+            success: true,
+            controleTypes: controleTypes
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
+};
+
+
+export const getDestinations = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+    try {
+        // const connect = await connectSQL();
         const query = 'SELECT * FROM Destination';
         const [destinations] = await connect.query(query);
-        console.log("Dest. endpoint: ",destinations)
-        
+        console.log("Dest. endpoint: ", destinations)
+
         res.status(200).json({
             success: true,
             destinations: destinations
@@ -123,16 +174,45 @@ export const getDestinations = async (req, res) => {
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ error: 'Error fetching destinations' });
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
 
-export const searchCadre = async (req, res) => {
+export const getCadre = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
+
+
+        const [cadres] = await connect.query(`SELECT * FROM cadre ;`)
+        console.log(cadres)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Cadres fetched successfully',
+            cadres: cadres
+        })
+    } catch (error) {
+        console.log('Error fetching cadres: ', error);
+        return res.status(500).json({
+            success: false,
+            message: 'No cadre found!!'
+        })
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
+}
+export const searchCadre = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+    try {
+        // const connect = await connectSQL();
         const { name } = req.body;
 
-        
-        if(!name) {
+
+        if (!name) {
             return res.status(400).json({
                 success: false,
                 message: 'Cadre name required'
@@ -146,34 +226,38 @@ export const searchCadre = async (req, res) => {
             WHERE u.nom LIKE ? OR u.prenom LIKE ? ;
             `, [`%${name}%`, `%${name}%`])
         console.log(cadres)
-        
 
-        if(cadres.length === 0) {
+
+        if (cadres.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: 'No cadre found!!'
             })
         }
-        
+
         return res.status(200).json({
-                success: true,
-                message: 'Cadres fetched successfully',
-                cadres: cadres
-            })
+            success: true,
+            message: 'Cadres fetched successfully',
+            cadres: cadres
+        })
     } catch (error) {
         console.log('Error fetching cadres: ', error);
         return res.status(500).json({
             success: false,
             message: 'No cadre found!!'
         })
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
 
 
-export const createOrderMission  = async (req, res)=> {
+export const createOrderMission = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
 
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
 
         const {
             cadreId,
@@ -186,7 +270,7 @@ export const createOrderMission  = async (req, res)=> {
             plateNumber,
             companion
         } = req.body
-        if(
+        if (
             !cadreId ||
             !destinationId ||
             !objectId ||
@@ -194,11 +278,11 @@ export const createOrderMission  = async (req, res)=> {
             !durationDays
         ) {
             console.log(
-                cadreId ,
-            destinationId ,
-            objectId ,
-            depDate ,
-            durationDays
+                cadreId,
+                destinationId,
+                objectId,
+                depDate,
+                durationDays
             )
             return res.status(400).json({
                 success: false,
@@ -218,16 +302,16 @@ export const createOrderMission  = async (req, res)=> {
             Id_object
             ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-            depDate,
-            durationDays,
-            companion || null,
-            plateNumber || null,
-            depHour,
-            arrHour,
-            destinationId,
-            objectId
-        ]);
+            [
+                depDate,
+                durationDays,
+                companion || null,
+                plateNumber || null,
+                depHour,
+                arrHour,
+                destinationId,
+                objectId
+            ]);
 
         const missionId = result.insertId
         const [insertIntoMissionCadreTable] = await connect.execute('INSERT INTO mission_cadre (mission_id, cadre_id) VALUES (?, ?)', [
@@ -241,13 +325,13 @@ export const createOrderMission  = async (req, res)=> {
         }
 
 
-        if(result.affectedRows === 1 && insertIntoMissionCadreTable.affectedRows === 1){
+        if (result.affectedRows === 1 && insertIntoMissionCadreTable.affectedRows === 1) {
             return res.status(201).json({
                 success: true,
                 message: 'Mission created successfully and missionCadre table updated',
                 missionId: IDs
             })
-        }else {
+        } else {
             return res.status(400).json({
                 success: false,
                 message: 'Failed to create Mission'
@@ -255,19 +339,23 @@ export const createOrderMission  = async (req, res)=> {
         }
 
 
-    }catch(error) {
+    } catch (error) {
         console.log('Error getting Cadres', error)
         res.status(400).json({
             success: false,
             message: 'Error inserting data to database'
         })
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
 
 export const updateOrderMission = async (req, res) => {
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
         const { id } = req.params;
-        const { 
+        const {
             arrHour,
             cadreId,
             companion,
@@ -278,19 +366,19 @@ export const updateOrderMission = async (req, res) => {
             missionId,
             objectId,
             plateNumber
-         } = req.body
+        } = req.body
 
         console.log(id)
-        if(!id || !cadreId) {
+        if (!id || !cadreId) {
             return res.status(400).json({
                 success: false,
                 message: "Mission id and Cadre id required!"
             })
         }
-        
-        const connect = await connectSQL();
+
+        // const connect = await connectSQL();
         await connect.beginTransaction();
-        
+
         const missionQuery = `
             UPDATE mission SET 
                 departure_date = ?, 
@@ -303,7 +391,7 @@ export const updateOrderMission = async (req, res) => {
                 Id_object = ? 
             WHERE mission_id = ?`;
         await connect.query(missionQuery, [
-            depDate, durationDays, companion, plateNumber, 
+            depDate, durationDays, companion, plateNumber,
             depHour, arrHour, destinationId, objectId, missionId
         ]);
 
@@ -324,14 +412,18 @@ export const updateOrderMission = async (req, res) => {
             success: false,
             message: 'update mission failed while update it from db'
         })
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }
 
 export const updateOrderMissionStatus = async (req, res) => {
-    const {id} = req.params;
-    const {status} = req.body
+    const { id } = req.params;
+    const { status } = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
 
-    if (!id || !status ) {
+    if (!id || !status) {
         return res.status(400).json({
             success: false,
             message: "id and status r required!"
@@ -339,14 +431,14 @@ export const updateOrderMissionStatus = async (req, res) => {
     }
 
     try {
-        console.log("Data comming from Update status Endpoint: ", id , status)
-        const connect = await connectSQL();
-        
+        console.log("Data comming from Update status Endpoint: ", id, status)
+        // const connect = await connectSQL();
+
         const query = `UPDATE mission 
                         SET status = ? 
                         WHERE mission_id = ? `;
         const [result] = await connect.query(query, [status, id]);
-        if(result.affectedRows === 0) {
+        if (result.affectedRows === 0) {
             return res.status(404).json({
                 success: false,
                 message: "Mission not found!"
@@ -358,44 +450,49 @@ export const updateOrderMissionStatus = async (req, res) => {
             success: true,
             message: "Status updates successfully!",
         })
-        
+
     } catch (error) {
         console.log('Error while updating status', error)
         return res.status(500).json({
             success: false,
             message: "Status updates error!",
         })
-   }
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
 
 }
 
 export const deleteOrderMission = async (req, res) => {
     const { id } = req.params;
-
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
 
         await connect.query('DELETE FROM mission_cadre WHERE mission_id = ?', [id]);
 
-        const [ result ] = await connect.query(
+        const [result] = await connect.query(
             `DELETE FROM mission WHERE mission_id = ?`,
             [id]
         )
 
-        if(result.affectedRows > 0 ) {
+        if (result.affectedRows > 0) {
             return res.status(200).json({
                 success: true,
                 massage: 'Mission deleted successfully'
             })
-        }else {
+        } else {
             return res.status(404).json({
                 success: false,
                 message: 'Mission not found'
             })
         }
 
-    }catch (error) {
+    } catch (error) {
         console.error('error deleting mission', error)
         return res.status(500).send('Server Error')
+    } finally {
+        connect.release(); // Toujours libérer la connexion
     }
 }

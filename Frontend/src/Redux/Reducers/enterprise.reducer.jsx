@@ -1,4 +1,7 @@
 import { 
+    FETCH_ENTERPRISE_ID_REQUEST,
+    FETCH_ENTERPRISE_ID_SUCCESS,
+    FETCH_ENTERPRISE_ID_FAILURE,
     FETCH_ENTERPRISES_REQUEST,
     FETCH_ENTERPRISES_SUCCESS,
     FETCH_ENTERPRISES_FAILURE,
@@ -12,12 +15,14 @@ import {
 
 const initialState = {
     enterprises: [],
+    enterprise: {},
     loading: false,
     error: null
 };
 
 function enterpriseReducer(state = initialState, action) {
     switch (action.type) {
+        case FETCH_ENTERPRISE_ID_REQUEST:
         case FETCH_ENTERPRISES_REQUEST:
         case ADD_ENTERPRISE_REQUEST:
         case UPDATE_ENTERPRISE_REQUEST:
@@ -28,11 +33,17 @@ function enterpriseReducer(state = initialState, action) {
             }
         
             
+        case FETCH_ENTERPRISE_ID_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                enterprise: action.payload || {}
+            }
         case FETCH_ENTERPRISES_SUCCESS:
             return {
                 ...state,
                 loading: false,
-                enterprises: action.payload
+                enterprises: action.payload || []
             }
         case ADD_ENTERPRISE_SUCCESS:
             return {
@@ -52,6 +63,7 @@ function enterpriseReducer(state = initialState, action) {
             }
 
         
+        case FETCH_ENTERPRISE_ID_FAILURE:
         case FETCH_ENTERPRISES_FAILURE:
         case ADD_ENTERPRISE_FAILURE:
         case UPDATE_ENTERPRISE_FAILURE:

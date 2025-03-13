@@ -7,8 +7,10 @@ import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js
 
 export const login = async (req, res) => {
     const {username, password} = req.body; 
+    const pool = await connectSQL(); // Obtenir le pool
+    const connection = await pool.getConnection(); // Obtenir une connexion
     try {
-        const  connection = await connectSQL();
+        // const  connection = await connectSQL();
         const [rows] = await connection.query(`
             SELECT *, p.nom_profile
             FROM Utilisateur u
@@ -65,7 +67,9 @@ export const login = async (req, res) => {
     }catch (e) {
         console.log("Error in login: ", e);
         return res.status(400).json({success: false, message: e})
-    }
+    }finally {
+        connection.release(); // Toujours libérer la connexion
+      }
 }
 
 
@@ -77,9 +81,11 @@ export const logout = async (req, res) => {
 
 export const signup = async (req, res) => {
     const {username, email, password, first_name, last_name, phone, status, profile} = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connection = await pool.getConnection(); // Obtenir une connexion
     try {
 
-        const  connection = await connectSQL();
+        // const  connection = await connectSQL();
 
         const [existingUser] = await connection.query(
             'SELECT * from Utilisateur WHERE username = ? OR email = ?',
@@ -128,7 +134,9 @@ export const signup = async (req, res) => {
 
     }catch (error) {
         return res.status(400).json({success: false, message: error.message})
-    }
+    }finally {
+        connection.release(); // Toujours libérer la connexion
+      }
 }
 
 

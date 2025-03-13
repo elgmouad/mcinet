@@ -1,0 +1,182 @@
+#print-area-pv {
+    direction: rtl;
+    text-align: right;
+    width: 100%;
+  }
+  .print-container {
+    width: 580px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    
+  }
+  
+  #print-area  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .title {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .table-section table {
+    width: 100%;
+    border-collapse: collapse;
+    
+  }
+  
+  .table-section td {
+    padding: 10px;
+    border: 1px solid #000;
+    
+  }
+  .signature-section {
+    margin-top: 20px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+  }
+  
+  .signature-line {
+    font-weight: bold;
+    margin: 0; 
+  }
+  
+  .refusal-note {
+    font-style: italic;
+  
+    margin: 0; 
+    
+    margin-top: 10px; 
+  }
+  
+  .delegates-section, .inspection-details, .observation-section, .declaration-section, .additional-info, .closing-section {
+    margin-top: 20px;
+  }
+  
+  .print-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border-radius: 5px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    
+  }
+  .print-button:disabled {
+    background-color: gray; 
+    color: white;
+    cursor: not-allowed;
+}
+.print-button:not(:disabled) {
+  background-color: blue; /* Active state: Blue */
+  color: white;
+}
+.print-button:not(:disabled):hover {
+  background-color: darkblue;
+}
+  
+  
+  
+ 
+  .delegates-section, .inspection-details, .observation-section, .declaration-section, .additional-info, .closing-section, .signatures {
+      margin-top: 20px;
+  }
+  .logo-container {
+    text-align: center;
+    margin-bottom: 10px; 
+  }
+  
+  .logo {
+    max-width: 100%;
+    height: auto;
+    width: 50%; 
+    margin: auto
+  }
+  @media print {
+    input, textarea {
+        border: none !important; 
+        outline: none !important; 
+        background-color: transparent !important; 
+    }
+}
+@media (max-width: 768px) {
+  .print-container {
+      padding: 10px;
+  }
+
+  .table-section table {
+      width: 100%;
+      display: block;
+      overflow-x: auto;
+  }
+
+  input, textarea {
+      width: 100%;
+  }
+}
+@media print {
+  body {
+    visibility: hidden;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .print-container, .print-container * {
+    visibility: visible;
+  }
+
+  /* Optionally add margins or page breaks */
+  .print-container {
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+}
+
+
+.confirm-button {
+  background-color: green;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+
+}
+.confirm-button:hover {
+  background-color: darkgreen;
+}
+.button-group{
+  display: flex;
+  gap: 20px;
+
+}
+.input-container input::placeholder,
+.input-container textarea::placeholder {
+    color: black; 
+    font-size: 16px;
+    letter-spacing: 2px;
+    content: "●●●●";
+}
+
+.input-container input {
+  border: none;
+  outline : none
+}
+.input-container input:focus,
+.input-container textarea:focus {
+}
+
+  
+  
+  

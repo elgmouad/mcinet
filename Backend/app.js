@@ -10,17 +10,16 @@ import userRoutes from './routes/user.route.js';
 import mission from './routes/orderMission.route.js';
 import enterprise from './routes/enterprise.route.js';
 import control from './routes/control.route.js';
+import statistics from './routes/statistics.route.js'
+import object from './routes/object.route.js'
+import product from './routes/product.route.js'
 
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT || 3000
+const port = process.env.PORT
+
 app.use(cors());
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-}));
 
 app.use(express.json())
 
@@ -30,6 +29,9 @@ app.use('/api/user', userRoutes)
 app.use('/api/missions', mission)
 app.use('/api/enterprise', enterprise)
 app.use('/api/control', control)
+app.use('/api/statistics',statistics)
+app.use('/api/object',object)
+app.use('/api/Products',product)
 
 
 app.get("/", (req, res) => {
@@ -37,10 +39,10 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, async () => {
-    try {
+    try{
         connectSQL();
         console.log(`Server is running on ${port}`)
-    } catch (error) {
+    }catch(error) {
         console.log('Error while starting the server: ', error)
     }
 })

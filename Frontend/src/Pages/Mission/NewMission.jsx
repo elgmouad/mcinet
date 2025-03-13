@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom'
 import PrintableMission from '../../Components/Utilities/PrintableMission'
 import Instance from "../../Api/axios";
-import { createOrderMission } from '../../Redux/Actions/orderMission.actions';
-
+import Select from 'react-select';
 
 
 function NewMission() {
@@ -13,12 +12,13 @@ function NewMission() {
   const [editMode, setEditMode] = useState(false)
   const [search, setSearch] = useState("");
   const [cadreList, setCadreList] = useState([]);
+  console.log("cadre:", cadreList)
   const [selectedCadre, setSelectedCadre] = useState(null);
   const [serviceCars, setServiceCars] = useState([]);
 
   const [accompaniedSearch, setAccompaniedSearch] = useState("");
   const [accompaniedList, setAccompaniedList] = useState([]);
-  const [selectedAccompanied, setSelectedAccompanied] = useState(null);
+  console.log("accom: ", accompaniedList)
 
   const [destinationList, setDestinationList] = useState([]);
   const [objectOptions, setObjectOptions] = useState([]);
@@ -26,30 +26,32 @@ function NewMission() {
   const [selectCar, setSelectCar] = useState("service");
 
   const [cadre, setCadre] = useState({
-    id: "",
-    nom: "",
-    prenom: "",
-    delegation: "",
-    grade: "",
-    carPlat: null
+    // id: "",
+    // nom: "",
+    // prenom: "",
+    // delegation: "",
+    // grade: "",
+    // carPlat: null
   });
 
   const [mission, setMission] = useState({
-    missionId: null,
-    cadreId: "",
-    destinationId: "",
-    destinationName: "",
-    objectId: "",
-    objectName: "",
-    depDate: "",
-    depHour: null,
-    arrHour: null,
-    durationDays: "",
-    plateNumber: null,
-    companion: null
+    // missionId: null,
+    // cadreId: "",
+    // destinationId: "",
+    // destinationName: "",
+    // objectId: "",
+    // objectName: "",
+    // depDate: "",
+    // depHour: null,
+    // arrHour: null,
+    // durationDays: "",
+    // plateNumber: null,
+    // companion: ""
   });
   const [hidePrint, setHidePrint] = useState(true)
 
+  const today = new Date();
+  const todayISOString = today.toISOString().split('T')[0];
   // -- Fetching From API :
   // ----- Fetch Object Options
   useEffect(() => {
@@ -67,13 +69,12 @@ function NewMission() {
   // ----- Fetch Accompanied Cadres
   useEffect(() => {
     const fetchAccompaniedCadres = async () => {
-      if (accompaniedSearch.trim() === "") {
-
-        setAccompaniedList([]);
-        return;
-      }
       try {
-        const response = await Instance.post("/missions/searchCadre", { name: accompaniedSearch });
+        const response = await Instance.get("/missions/getCadre");
+        console.log("respo: ", response)
+        // const accompWithoutCadre = response.filter(selectedCadre => (
+
+        // ))
         setAccompaniedList(response.data.cadres || []);
       } catch (error) {
         console.error(error);
@@ -176,7 +177,7 @@ function NewMission() {
   // -- Handlers :
   // handling inputs values
   const handleCadreChange = (selected) => {
-    console.log('detec the selected cadre: ', selected.cadre_id)
+    // console.log('detec the selected cadre: ', selected.cadre_id)
     setSelectedCadre(selected);
     setSearch(`${selected.nom} ${selected.prenom}`);
 
@@ -223,9 +224,11 @@ function NewMission() {
         plateNumber: null
       }))
     }
+  };
+
+  useEffect(() => {
     if (
-      cadre.nom !== '' &&
-      cadre.prenom !== '' &&
+      mission.cadreId !== '' &&
       mission.durationDays !== '' &&
       mission.depDate !== '' &&
       mission.destinationId !== '' &&
@@ -233,8 +236,22 @@ function NewMission() {
     ) {
       setHidePrint(!hidePrint)
     }
-  };
+  }, [mission])
 
+  const handleAccomSelect = (nom) => {
+    if (nom === `${cadre.nom} ${cadre.prenom}`) {
+      return setMission(prev => ({
+        ...prev,
+        companion: ''
+      }))
+    } else {
+      setMission(prev => ({
+        ...prev,
+        companion: nom.value
+      }))
+    }
+
+  }
 
 
   // when submite the form
@@ -280,22 +297,6 @@ function NewMission() {
     setModalPopUpPrint(!modalPopUpPrint)
   };
 
-
-
-  const handlePrint = () => {
-    if (!hidePrint) {
-      const printArea = document.getElementById("print-area").innerHTML;
-      
-      const printConten = document.body.innerHTML;
-
-      document.body.innerHTML = printArea;
-      window.print()
-      document.body.innerHTML = printConten;
-      window.location.reload()
-    }
-
-  }
-
   return (
     <div className="p-6 max-md:p-0 max-md:px-3">
       {/* Header */}
@@ -311,7 +312,7 @@ function NewMission() {
         {/* Groupe: Nom et Titre */}
         <div className="flex gap-6 mb-4 max-md:flex-col ">
           <div className=" flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Nom*</label>
+            <label className="font-medium text-sm mb-1">Nom <span className="text-red-500">*</span></label>
             <div className="relative flex flex-col flex-1 ">
               <input
                 type="text"
@@ -337,7 +338,7 @@ function NewMission() {
             </div>
           </div>
           <div className="flex flex-col flex-1 ">
-            <label className="">Titre*</label>
+            <label className="">Titre  <span className="text-red-500">*</span></label>
             <input
               type="text"
               name="grade"
@@ -345,6 +346,7 @@ function NewMission() {
               onChange={handleCadreChange}
               placeholder="Titre..."
               className="border rounded-lg px-4 py-2 focus:outline-blue"
+              disabled={cadre.grade !== ''}
               required
             />
           </div>
@@ -353,7 +355,7 @@ function NewMission() {
         {/* Groupe: Délégation et Destination */}
         <div className="flex gap-6 mb-4 max-md:flex-col">
           <div className="flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Délégation*</label>
+            <label className="font-medium text-sm mb-1">Délégation <span className="text-red-500">*</span></label>
             <input
               type="text"
               name="delegation"
@@ -361,13 +363,13 @@ function NewMission() {
               onChange={handleCadreChange}
               placeholder="Délégation..."
               className="border rounded-lg px-4 py-2 focus:outline-blue"
-              
+              disabled={cadre.nom !== ''}
             />
           </div>
 
           {/*  Destination */}
           <div className="flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Destination*</label>
+            <label className="font-medium text-sm mb-1">Destination <span className="text-red-500">*</span></label>
             <select
               name="destinationId"
               value={mission.destinationId}
@@ -375,7 +377,7 @@ function NewMission() {
               className="border rounded-lg px-4 py-2 focus:outline-blue"
               required
             >
-              <option value="" disabled>Sélectionnez une destination</option>
+              <option defaultValue={'default'} selected={true} disabled>Sélectionnez une destination</option>
               {destinationList.map(destination => (
                 <option key={destination.Id_des} value={destination.Id_des}>
                   {destination.Destination || "Aucune destination"}
@@ -397,7 +399,7 @@ function NewMission() {
             className="border rounded-lg px-4 py-2 focus:outline-blue"
             required
           >
-            <option value="" disabled>Sélectionnez un objet...</option>
+            <option defaultValue={'default'} selected={true} disabled>Sélectionnez un objet...</option>
             {objectOptions.map(object => (
               <option key={object.Id_object} value={object.Id_object || ""}>
                 {object.Object_type || "Aucun objet"}
@@ -410,18 +412,18 @@ function NewMission() {
         {/* Groupe: Date et Heure */}
         <div className="flex gap-6 mb-4 max-md:flex-col">
           <div className="flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Date départ*</label>
+            <label className="font-medium text-sm mb-1">Date départ <span className="text-red-500">*</span></label>
             <input
               type="date"
               name="depDate"
               value={mission.depDate}
               onChange={handleMissionChange}
               className="border rounded-lg px-4 py-2 focus:outline-blue"
-
+              min={todayISOString}
             />
           </div>
           <div className="flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Heure départ*</label>
+            <label className="font-medium text-sm mb-1">Heure départ </label>
             <input
               type="time"
               name="depHour"
@@ -436,7 +438,7 @@ function NewMission() {
         {/* Groupe: Heure arrivée et Durée */}
         <div className="flex gap-6 mb-4 max-md:flex-col">
           <div className="flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Heure d'arrivée*</label>
+            <label className="font-medium text-sm mb-1">Heure d'arrivée</label>
             <input
               type="time"
               name="arrHour"
@@ -447,13 +449,13 @@ function NewMission() {
             />
           </div>
           <div className="flex flex-col flex-1">
-            <label className="font-medium text-sm mb-1">Durée de la mission*</label>
+            <label className="font-medium text-sm mb-1">Durée de la mission <span className="text-red-500">*</span></label>
             <input
               type="text"
               name="durationDays"
               value={mission.durationDays}
               onChange={handleMissionChange}
-              placeholder="Durée (en heures)..."
+              placeholder="Durée (en jours)..."
               className="border rounded-lg px-4 py-2 focus:outline-blue"
 
             />
@@ -517,7 +519,7 @@ function NewMission() {
                     onChange={handleMissionChange}
                     className="border rounded-lg px-4 py-2 focus:outline-blue"
                   >
-                    <option defaultValue={'default'} selected={true} >Sélectionnez une voiture</option>
+                    <option defaultValue={'default'} selected={true} disabled>Sélectionnez une voiture</option>
                     {serviceCars.map((car, i) => (
                       <option key={i} value={car.s_matricule || ""}>
                         {car.model || "Aucun"} - ({car.s_matricule})
@@ -535,25 +537,7 @@ function NewMission() {
         <div className="flex flex-col">
           <label className="font-medium text-sm mb-1">Sera accompagné de</label>
           <div className="relative flex flex-col">
-            {/* <input
-              type="text"
-              value={accompaniedSearch}
-              onChange={(e) => setAccompaniedSearch(e.target.value)}
-              placeholder="Nom d'accompagnateur..."
-              className="border rounded-lg px-4 py-2 focus:outline-blue"
-            />
-            <div className={`absolute top-11 left-0 w-full bg-white border rounded-lg ${accompaniedList.length > 0 ? 'border' : ''}`}>
-              {accompaniedList.map((cadre, i) => (
-                <div
-                  key={i}
-                  onClick={() => handleAccompaniedChange(cadre)}
-                  className="px-4 py-2 cursor-pointer hover:bg-bg-blue hover:text-blue"
-                >
-                  {cadre.prenom} {cadre.nom}
-                </div>
-              ))}
-            </div> */}
-            <Select 
+            <Select
               classNames={{
                 control: (state) =>
                   `border !rounded-[10px] px-2 !min-w-[320px] !w-full basis-full focus:outline-blue ${state.isFocused ? 'ring-2 ring-blue-500 border-blue-500' : 'order-gray-300'}`,
@@ -561,18 +545,19 @@ function NewMission() {
                 option: () => 'hover:bg-bg-blue hover:text-blue px-4 py-0',
                 placeholder: () => 'text-gray-300',
               }}
-              options={enterprises.map(ent => ({
-                value: ent.ICE,
-                label: `${ent.raison_sociale} - ${ent.ICE}`
-              }))} 
-              onChange={handleEnterpriseSelect}
-              placeholder="Nom d'Entreprise ..."
-              noOptionsMessage={()=> "Aucune entreprise trouvé"}
+              options={accompaniedList.filter(acc => acc.cadre_id !== mission.cadreId)
+                .map(acc => ({
+                  value: acc.nom,
+                  label: acc.nom
+                }))}
+              onChange={handleAccomSelect}
+              placeholder="Nom d'accompagnion ..."
+              noOptionsMessage={() => "Aucune accompagnion trouvé"}
               isSearchable
-              />
+            />
           </div>
         </div>
-
+        {console.log('Mission :', mission)}
 
 
         {/* Groupe: Boutons */}
@@ -621,7 +606,7 @@ function NewMission() {
                 </button>
                 <button
                   type="button"
-                  onClick={handlePrint}
+                  onClick={hidePrint}
                   className="px-3 py-2 bg-[#E4E4E4] border-[#E4E4E4] font-medium font-poppins text-base rounded-[10px] hover:!bg-bg-blue hover:text-blue  transition-colors "
                 >
                   Imprimer

@@ -31,26 +31,77 @@ export const fetchControls = () => async (dispatch) => {
         throw error
     }
 }
-
-export const createControl = (data) => async (dispatch) => {
+export const createControl = (data, ControlObjectType) => async (dispatch) => {
     try {
-        dispatch({ type: CREATE_CONTROL_REQUEST})
-
-        const response = await Instance.post('/control/add', data);
-        dispatch({
-            type: CREATE_CONTROL_SUCCESS,
-            payload: response.data.control
-        })
-
-        return true
+        switch (ControlObjectType.toUpperCase()) {
+            case "CONTROLE_LOI_34":
+                return await dispatch(createControleLoi34(data));
+            case "CONTROLE_LOI_79_LOCAL":
+                return await dispatch(createControleLoi34(data));
+            case "CONTROLE_LOI_79_IMPORTATION":
+                console.log("Enter to CONTROLE_LOI_79_IMPORTATION to CREATE :",data);
+                return await dispatch(createControleLoi97Importation(data));
+            default:
+                dispatch({
+                    type: CREATE_CONTROL_FAILURE,
+                    payload: "Type de contrôle inconnu"
+                });
+                return false;
+        }
     } catch (error) {
         dispatch({
             type: CREATE_CONTROL_FAILURE,
-            payload: error.response?.data.message || 'On peu pas créé ce controle'
-        })
-        return false
+            payload: error.response?.data.message || 'Impossible de créer ce contrôle'
+        });
+        return false;
     }
-}
+};
+
+export const createControleLoi3108 = (data) => async (dispatch) => {
+    try {
+        dispatch({ type: CREATE_CONTROL_REQUEST });
+
+        console.log("Données envoyées :", data);
+        const response = await Instance.post('/control/add', data);
+        
+        dispatch({
+            type: CREATE_CONTROL_SUCCESS,
+            payload: response.data.control
+        });
+
+        return true;
+    } catch (error) {
+        dispatch({
+            type: CREATE_CONTROL_FAILURE,
+            payload: error.response?.data.message || 'Impossible de créer ce contrôle'
+        });
+
+        return false;
+    }
+};
+
+export const createControleLoi2409Importation = (data) => async (dispatch) => {
+    try {
+        dispatch({ type: CREATE_CONTROL_REQUEST });
+
+        console.log("Données envoyées :", data);
+        const response = await Instance.post('/control/add/importation', data);
+        
+        dispatch({
+            type: CREATE_CONTROL_SUCCESS,
+            payload: response.data.control
+        });
+
+        return true;
+    } catch (error) {
+        dispatch({
+            type: CREATE_CONTROL_FAILURE,
+            payload: error.response?.data.message || 'Impossible de créer ce contrôle'
+        });
+
+        return false;
+    }
+};
 
 export const updateControl = (id, data) => async (dispatch) => {
     try {
@@ -61,7 +112,7 @@ export const updateControl = (id, data) => async (dispatch) => {
             type: UPDATE_CONTROL_SUCCESS,
             payload: response.data.control
         })
-        
+
         return true
     } catch (error) {
         dispatch({
@@ -74,14 +125,14 @@ export const updateControl = (id, data) => async (dispatch) => {
 
 export const deleteControl = (id) => async (dispatch) => {
     try {
-        dispatch({ type: DELETE_CONTROL_REQUEST})
+        dispatch({ type: DELETE_CONTROL_REQUEST })
 
         const response = await Instance.delete(`/control/delete/${id}`)
         dispatch({
             type: DELETE_CONTROL_SUCCESS,
             payload: id
         })
-        
+
         return true
     } catch (error) {
         dispatch({
