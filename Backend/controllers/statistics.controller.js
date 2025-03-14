@@ -48,9 +48,9 @@ export const getNbrMissionByMonth = async (connect) => {
     }
 };
 
-export const getNbrNonConformeByPratique = async () => {
+export const getNbrNonConformeByPratique = async (connect) => {
     try {
-        const connect = await connectSQL();
+        // const connect = await connectSQL();
         const query = `
             SELECT 
                 COUNT(CASE WHEN affichage_prix = 'non-conforme' THEN 1 END) AS affichage_prix_non_conforme,

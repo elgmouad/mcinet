@@ -92,14 +92,14 @@ export const createControleLoi2409Importation = (data) => async (dispatch) => {
             payload: response.data.control
         });
 
-        return true;
+        return response.data;
     } catch (error) {
         dispatch({
             type: CREATE_CONTROL_FAILURE,
             payload: error.response?.data.message || 'Impossible de créer ce contrôle'
         });
 
-        return false;
+        throw error;
     }
 };
 

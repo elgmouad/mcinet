@@ -1,3 +1,4 @@
+import { response } from "express";
 import { connectSQL } from "../database/connectDB.js"
 
 export const fetchControls = async (req, res) => {
@@ -23,10 +24,11 @@ export const fetchControls = async (req, res) => {
             success: false,
             message: 'Erreur interne du serveur'
         })
-    }finally {
+    } finally {
         connect.release(); // Toujours libérer la connexion
-      }
+    }
 }
+
 export const createControl = async (req, res) => {
     const control = req.body
     const convertDate = control.executedAt.at
@@ -93,7 +95,7 @@ export const createControl = async (req, res) => {
             }
         } else {
             res.status(400).json({
-                success: flase,
+                success: false,
                 message: 'Error while creating control!'
             })
 
@@ -104,25 +106,129 @@ export const createControl = async (req, res) => {
             message: 'Error server!'
         })
         throw error
-    }finally {
+    } finally {
         connect.release(); // Toujours libérer la connexion
-      }
+    }
 }
+
+// export const createControlLoi97Importation = async (req, res) => {
+//     const data = req.body
+//     const pool = await connectSQL(); // Obtenir le pool
+//     const connect = await pool.getConnection(); // Obtenir une connexion
+
+//     // const convertDate = data.executedAt.at
+//     console.log('Add importation Controle_Loi2409_Importation: ', data)
+//     if (!data.entID) return res.status(400).json({
+//         success: false,
+//         message: 'Entreprise ID required!'
+//     })
+
+//     try {
+//         // const connect = await connectSQL()
+//         const query = `
+//         INSERT INTO controle24_09Importation (
+//                                 date_visite ,
+//                                 f_observation,
+//                                 validation,
+//                                 mission_id) VALUES (?, ?, ?, ?)`
+//         const values = [
+//             data.executedAt.at,
+//             data.observation,
+//             data.validation,
+//             data.missionID
+//         ]
+//         const [responseControle] = await connect.execute(query, values);
+//         console.log('Importation : ', responseControle);
+
+//         if (responseControle.affectedRows === 1) {
+
+//             const insertToEC = `INSERT INTO entrepriseControle24_09Importation (
+//             ICE, 
+//             idCtrl,
+//             idPrd,
+//             nbrState,
+//             status,
+//             observation) VALUES (?, ?, ?, ?, ?,?)`;
+
+//             const [responseEC] = await connect.execute(insertToEC, [data.entID, responseControle.insertId, data.productID, data.nbrControle, data.status, data.observation])
+//             console.log('Entrprise : ', responseEC);
+
+//             if (responseEC.affectedRows === 1) {
+//                 if (data.status === 'Conforme') {
+//                     const currentDate = new Date();
+//                     const at = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+//                     data.dateFinAut = at;
+//                     // Ajouter 6 mois
+//                     currentDate.setMonth(currentDate.getMonth() + 6);
+//                     const dateFinAut = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
+//                     const insertToAutorisation = `INSERT INTO autorisation (
+//                     dateDebut,
+//                     dateFin,
+//                     id_Prd) VALUES (?, ?, ?)`;
+//                     const [responseAutorisation] = await connect.execute(insertToAutorisation, [at, dateFinAut, data.productID]);
+//                     if (responseAutorisation.affectedRows === 1) {
+//                         console.log('Autorisation : ', responseAutorisation);
+
+//                         res.status(201).json({
+//                             success: true,
+//                             message: 'Control created successfully!'
+//                         });
+
+//                     } else {
+//                         res.status(400).json({
+//                             success: false,
+//                             message: 'Error while linking Autorisation with Product!'
+//                         });
+//                     }
+//                 }
+
+//                 res.status(201).json({
+//                     success: true,
+//                     message: 'Control created successfully!'
+//                 });
+
+//             } else {
+//                 // if (result.affectedRows === 1) {
+//                 res.status(400).json({
+//                     success: false,
+//                     message: 'Error while linking control with entreprise!'
+//                 });
+//                 // }
+//             }
+//         } else {
+//             res.status(400).json({
+//                 success: false,
+//                 message: 'Error while creating control!'
+//             })
+
+//         }
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: 'Erreur interne du serveur'
+//         })
+//         throw error
+//     } finally {
+//         connect.release(); // Toujours libérer la connexion
+//     }
+// }
 
 export const createControlLoi97Importation = async (req, res) => {
     const data = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
     // const convertDate = data.executedAt.at
     console.log('Add importation Controle_Loi2409_Importation: ', data)
     if (!data.entID) return res.status(400).json({
         success: false,
         message: 'Entreprise ID required!'
     })
-    const pool = await connectSQL(); // Obtenir le pool
-    const connect = await pool.getConnection(); // Obtenir une connexion
+
     try {
         // const connect = await connectSQL()
         const query = `
-        INSERT INTO Controle_Loi97_Importation (
+        INSERT INTO controle24_09Importation (
                                 date_visite ,
                                 f_observation,
                                 validation,
@@ -133,39 +239,27 @@ export const createControlLoi97Importation = async (req, res) => {
             data.validation,
             data.missionID
         ]
-        const [response] = await connect.execute(query, values)
-        if (response.affectedRows === 1) {
+        const [responseControle] = await connect.execute(query, values);
+        console.log('Importation : ', responseControle);
 
-            const insertToEC = `INSERT INTO Entreprise_Controle97_Impor (
-            ICE, 
-            idCtrl,
-            idPrd,
-            nbrState,
-            status,
-            observation) VALUES (?, ?, ?, ?, ?,?)`
+        if (responseControle.affectedRows === 1) {
 
-            const result = await connect.execute(insertToEC, [data.entID, response.insertId, data.productID, data.nbrControle, data.status, data.observation])
-            if (result.affectedRows === 1) {
-                if (data.status === 'Conforme') {
-                    const insertToAutorisation = `INSERT INTO Autorisation (dateDebut, dateFin, id_Prd) VALUES (?, ?, ?)`
-                    result = await connect.execute(insertToAutorisation, [data.dateDebutAut, data.dateFinAut, response.insertId])
-                }
-
+            const resultByEntCont = await createControlEntrepriseLoi97Importation(data, responseControle);
+            if (resultByEntCont.success) {
                 res.status(201).json({
                     success: true,
                     message: 'Control created successfully!'
-                })
+                });
             } else {
-                if (result.affectedRows === 1) {
-                    res.status(400).json({
-                        success: false,
-                        message: 'Error while linking control with entreprise!'
-                    })
-                }
+                res.status(400).json({
+                    success: false,
+                    message: resultByEntCont.message
+                })
             }
+
         } else {
             res.status(400).json({
-                success: flase,
+                success: false,
                 message: 'Error while creating control!'
             })
 
@@ -173,12 +267,140 @@ export const createControlLoi97Importation = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error
+            message: error.message
         })
-        throw error
-    }finally {
+        throw error.message
+    } finally {
         connect.release(); // Toujours libérer la connexion
-      }
+    }
+}
+
+const createControlEntrepriseLoi97Importation = async (data, oldState) => {
+    // const data = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
+    // const convertDate = data.executedAt.at
+    // console.log('Add EntrepriseControle_Loi2409_Importation: ', data)
+    if (!data.entID || !data.productID) return {
+        success: false,
+        message: 'Data required!'
+    }
+
+    try {
+        // const connect = await connectSQL()
+        console.log("OLD STATE ENTREPRISE", oldState);
+
+        if (oldState.affectedRows === 1) {
+
+            const insertToEC = `INSERT INTO entrepriseControle24_09Importation (
+            ICE, 
+            idCtrl,
+            idPrd,
+            nbrState,
+            status,
+            observation) VALUES (?, ?, ?, ?, ?,?)`;
+
+            const [responseEC] = await connect.execute(insertToEC, [data.entID, oldState.insertId, data.productID, data.nbrControle, data.status, data.observation])
+            console.log('Entrprise : ', responseEC);
+            if (responseEC.affectedRows === 1) {
+                if (data.status === 'Conforme') {
+                    const result = await createAutorisationControlLoi97Importation(data, responseEC);
+                    if (result.success) {
+                        return {
+                            success: true,
+                            message: 'Successful Linked Entreprise and Create Autorisation'
+                        }
+                    } else {
+                        return {
+                            success: false,
+                            message: 'Faild to Link Entreprise and add Autorisation'
+                        }
+                    }
+                } else {
+                    return {
+                        success: true,
+                        message: 'Linked Successful with Controle'
+                    }
+                }
+            } else {
+                return {
+                    success: false,
+                    message: 'Fail To link Entreprise with Controle'
+                }
+            }
+        } else {
+            return {
+                success: false,
+                message: 'Fail Linked Entreprise with controle Old not Succes '
+            }
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
+}
+
+const createAutorisationControlLoi97Importation = async (data, oldState) => {
+    // const data = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
+    // const convertDate = data.executedAt.at
+    // console.log('Add AutorisationControle_Loi2409_Importation: ', data)
+    if (!data.productID) return {
+        success: false,
+        message: 'Product Data required!'
+    }
+
+    try {
+        // const connect = await connectSQL()
+
+        console.log("OLD STATE AUTORISATION", oldState);
+        if (oldState.affectedRows === 1) {
+            const currentDate = new Date();
+            const at = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+            data.dateFinAut = at;
+            // Ajouter 6 mois
+            currentDate.setMonth(currentDate.getMonth() + 6);
+            const dateFinAut = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
+
+            const insertToAutorisation = `INSERT INTO autorisation (
+                dateDebut,
+                dateFin,
+                id_Prd) VALUES (?, ?, ?)`;
+            const [responseAutorisation] = await connect.execute(insertToAutorisation, [at, dateFinAut, data.productID]);
+            if (responseAutorisation.affectedRows === 1) {
+                console.log('Autorisation : ', responseAutorisation);
+                return {
+                    success: true,
+                    message: 'Linked with Autorisation Successful'
+                }
+            } else {
+                return {
+                    success: false,
+                    message: 'Fail Linked Autorisation'
+                }
+            }
+        } else {
+            return {
+                success: false,
+                message: 'Fail Linked Autorisation with Entreprise'
+            }
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error
+        }
+        throw error;
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
 }
 
 export const updateControls = async (req, res) => {

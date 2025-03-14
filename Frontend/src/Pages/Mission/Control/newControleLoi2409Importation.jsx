@@ -34,6 +34,8 @@ export const NewControleLoi2409Importation = () => {
     const [displayError, setDisplayError] = useState(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErroreModal, setShowErroreModal] = useState(false);
+    const [erroreMessage, setErroreMessage] = useState("");
+
 
     const [selectedOption, setSelectedOption] = useState(null);
 
@@ -179,7 +181,7 @@ export const NewControleLoi2409Importation = () => {
                 entID: null,
                 // executedAt: null,
                 observation: "",
-                validation: "",
+                validation: "Validé",
                 missionID: missionID,
                 productID: null,
                 nbrControle: 0,
@@ -221,13 +223,15 @@ export const NewControleLoi2409Importation = () => {
 
     const handleSubmit = () => {
         try {
-            const success = dispatch(createControleLoi2409Importation(control));
-            if (success) {
+            const response = dispatch(createControleLoi2409Importation(control));
+            console.log("Reponse Recue =============>", response);
+            if (response.payload?.success) {
                 setShowSuccessModal(true);
 
                 // navigate('/dashboard/orderMissions/control/list', { state: { message: "Contrôle créé avec succès !" } });
             } else {
                 setShowErroreModal(true);
+                setErroreMessage("Erreur : Impossible de créer le contrôle. Veuillez réessayer !");
                 // alert("Erreur : Impossible de créer le contrôle. Veuillez réessayer !");
             }
         } catch (error) {
@@ -508,6 +512,7 @@ export const NewControleLoi2409Importation = () => {
                     {/* Modale affichée en cas de succès */}
                     <ErroreModal
                         visible={showErroreModal}
+                        message={erroreMessage}
                         onClose={handleCloseErroreModal}
                     />
                 </div>

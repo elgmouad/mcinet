@@ -43,8 +43,8 @@ export const connectSQL = async () => {
         database: process.env.DB_NAME,
         port: process.env.DB_PORT,
         waitForConnections: true,
-        connectionLimit: 10,  // Nombre max de connexions simultanées
-        queueLimit: 0          // Pas de limite sur la file d'attente
+        connectionLimit: 100,  // Nombre max de connexions simultanées
+              // Pas de limite sur la file d'attente
       });
       console.log("✅ Pool de connexions MySQL créé.");
     }
