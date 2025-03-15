@@ -8,7 +8,7 @@ import SuccessModal from '../../../Components/Utilities/SuccessControlModal';
 import ErroreModal from '../../../Components/Utilities/ErroreModal';
 import { fetchProducts } from '../../../Redux/Actions/product.actions';
 
-export const NewControleLoi2409Importation = () => {
+export const NewControleLoi7715PointVente = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -216,16 +216,16 @@ export const NewControleLoi2409Importation = () => {
 
     const handleCloseErroreModal = () => {
         setShowErroreModal(false);
-        // setTimeout(() => {
-        //     navigate('/dashboard/orderMissions/control/list'); // Naviguer après un court délai
-        // }, 100);
+        setTimeout(() => {
+            navigate('/dashboard/orderMissions/control/list'); // Naviguer après un court délai
+        }, 100);
     };
 
     const handleSubmit = () => {
         try {
             const response = dispatch(createControleLoi2409Importation(control));
-            console.log("Reponse Recue =============>", response?.success);
-            if (response?.success) {
+            console.log("Reponse Recue =============>", response);
+            if (response.payload?.success) {
                 setShowSuccessModal(true);
 
                 // navigate('/dashboard/orderMissions/control/list', { state: { message: "Contrôle créé avec succès !" } });
@@ -243,7 +243,7 @@ export const NewControleLoi2409Importation = () => {
     return (
         <div className="px-6 flex flex-col">
             <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Créer Contrôle Loi 24 Importation</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Créer Contrôle Loi 77-15 PointVente </h1>
             </div>
 
             <form onSubmit={handleNext} className="h-full flex flex-col justify-between">
@@ -521,4 +521,4 @@ export const NewControleLoi2409Importation = () => {
     );
 };
 
-export default NewControleLoi2409Importation;
+export default NewControleLoi7715PointVente;

@@ -39,7 +39,7 @@ export const createControl = (data, ControlObjectType) => async (dispatch) => {
             case "CONTROLE_LOI_79_LOCAL":
                 return await dispatch(createControleLoi34(data));
             case "CONTROLE_LOI_79_IMPORTATION":
-                console.log("Enter to CONTROLE_LOI_79_IMPORTATION to CREATE :",data);
+                console.log("Enter to CONTROLE_LOI_79_IMPORTATION to CREATE :", data);
                 return await dispatch(createControleLoi97Importation(data));
             default:
                 dispatch({
@@ -63,7 +63,7 @@ export const createControleLoi3108 = (data) => async (dispatch) => {
 
         console.log("Données envoyées :", data);
         const response = await Instance.post('/control/add', data);
-        
+
         dispatch({
             type: CREATE_CONTROL_SUCCESS,
             payload: response.data.control
@@ -86,7 +86,30 @@ export const createControleLoi2409Importation = (data) => async (dispatch) => {
 
         console.log("Données envoyées :", data);
         const response = await Instance.post('/control/add/importation', data);
-        
+
+        dispatch({
+            type: CREATE_CONTROL_SUCCESS,
+            payload: response.data.control
+        });
+
+        return response.data;
+    } catch (error) {
+        dispatch({
+            type: CREATE_CONTROL_FAILURE,
+            payload: error.response?.data.message || 'Impossible de créer ce contrôle'
+        });
+
+        throw error;
+    }
+};
+
+export const createControleLoi7715 = (data) => async (dispatch) => {
+    try {
+        dispatch({ type: CREATE_CONTROL_REQUEST });
+
+        console.log("Données envoyées :", data);
+        const response = await Instance.post('/control/add/77_15_company', data);
+
         dispatch({
             type: CREATE_CONTROL_SUCCESS,
             payload: response.data.control

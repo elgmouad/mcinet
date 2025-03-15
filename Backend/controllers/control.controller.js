@@ -403,6 +403,240 @@ const createAutorisationControlLoi97Importation = async (data, oldState) => {
     }
 }
 
+export const createControlLoi7715 = async (req, res) => {
+    const data = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
+    // const convertDate = data.executedAt.at
+    console.log('Add Controle_Loi_7715: ', data)
+    if (!data.entID) return res.status(400).json({
+        success: false,
+        message: ' Verefier que tout les donner sont bien saisie!'
+    });
+
+    try {
+        // const connect = await connectSQL()
+        const query = `
+        INSERT INTO controle77_15 (
+                                date_visite ,
+                                f_observation,
+                                validation,
+                                id_mission) VALUES (?, ?, ?, ?)`
+        const values = [
+            data.executedAt.at,
+            data.observation,
+            data.validation,
+            data.missionID
+        ]
+        const [responseControle] = await connect.execute(query, values);
+        console.log('Controle_Loi_7715 : ', responseControle);
+
+        if (responseControle.affectedRows === 1) {
+            if (data.isCompanyUnit) {
+                if (data.isAvisTech && data.avisTech.length > 5) {
+                    const resultByAvisTech = await entreprise_control77_15_AvisTech(data.avisTech, data.executedAt.at);
+
+                    if (resultByAvisTech.success) {
+                        const resultByEntCont = await createControlLoi7715_CompanyUnit(data, responseControle, resultByAvisTech.idAvisTech);
+                        if (resultByEntCont.success) {
+                            res.status(201).json({
+                                success: true,
+                                message: 'Control created successfully!'
+                            });
+                        } else {
+                            res.status(400).json({
+                                success: false,
+                                message: resultByEntCont.message
+                            })
+                        }
+                    } else {
+                        res.status(400).json({
+                            success: false,
+                            message: resultByAvisTech.message
+                        })
+                    }
+                } else {
+                    const resultByEntCont = await createControlLoi7715_CompanyUnit(data, responseControle, null);
+                    if (resultByEntCont.success) {
+                        res.status(201).json({
+                            success: true,
+                            message: 'Control created successfully!'
+                        });
+                    } else {
+                        res.status(400).json({
+                            success: false,
+                            message: resultByEntCont.message
+                        })
+                    }
+                }
+            }
+
+            // if (data.isPointOfSale) {
+
+            // }
+
+
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Error while creating control!'
+            })
+
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+        throw error.message
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
+}
+
+const entreprise_control77_15_AvisTech = async (avisTech, at) => {
+    // const data = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
+    try {
+
+        const insertToAvisTechnique = `INSERT INTO Avis_Tech (
+            avis, 
+            date_avis) VALUES (?, ?)`;
+
+        const [responseAT] = await connect.execute(insertToAvisTechnique, [avisTech, at])
+        console.log('Avis Tech : ', responseAT);
+        if (responseAT.affectedRows === 1) {
+            return {
+                success: true,
+                idAvisTech: responseAT.insertId,
+                message: 'Successful Create Avis Technique'
+            }
+        } else {
+            return {
+                success: false,
+                message: 'Fail To link Entreprise with Controle'
+            }
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
+}
+
+const createControlLoi7715_CompanyUnit = async (data, oldState, idAvisTech) => {
+    // const data = req.body
+    const pool = await connectSQL(); // Obtenir le pool
+    const connect = await pool.getConnection(); // Obtenir une connexion
+
+    // const convertDate = data.executedAt.at
+    // console.log('Add EntrepriseControle_Loi2409_Importation: ', data)
+    if (!data.entID) return {
+        success: false,
+        message: 'Data required!'
+    }
+
+    try {
+        // const connect = await connectSQL()
+        console.log("OLD STATE ENTREPRISE", oldState);
+
+        if (oldState.affectedRows === 1) {
+
+            const insertToEC = `INSERT INTO entreprise_control77_15 (
+            ICE, 
+            CtrlID,
+            QntSacsPlasticsNonConform,
+            QntPrdEncourSaisis,
+            QntMatierPremierSaisis,
+            id_AvisTech) VALUES (?, ?, ?, ?, ?,?)`;
+
+            const [responseEC] = await connect.execute(insertToEC, [data.entID, oldState.insertId, data.qntSacsPlasticsNonConforme,
+            data.qntPrdEncourSaisis, data.qntMatierPremierSaisis, idAvisTech])
+            console.log('EntrpriseControle : ', responseEC);
+            if (responseEC.affectedRows === 1) {
+                return {
+                    success: true,
+                    message: 'Successful Linked Entreprise and Controle'
+                }
+            } else {
+                return {
+                    success: false,
+                    message: 'Fail To link Entreprise with Controle'
+                }
+            }
+        } else {
+            return {
+                success: false,
+                message: 'Fail Linked Entreprise with controle Old not Succes '
+            }
+        }
+    } catch (error) {
+        return {
+            success: false,
+            message: error.message
+        }
+    } finally {
+        connect.release(); // Toujours libérer la connexion
+    }
+}
+
+// const createControlLoi7715_CompanyUnit(){
+//     try {
+//         // const connect = await connectSQL()
+//         const query = `
+//         INSERT INTO controle77_15 (
+//                                 date_visite ,
+//                                 f_observation,
+//                                 validation,
+//                                 mission_id) VALUES (?, ?, ?, ?)`
+//         const values = [
+//             data.executedAt.at,
+//             data.observation,
+//             data.validation,
+//             data.missionID
+//         ]
+//         const [responseControle] = await connect.execute(query, values);
+//         console.log('Importation : ', responseControle);
+
+//         if (responseControle.affectedRows === 1) {
+
+//             const resultByEntCont = await createControlEntrepriseLoi97Importation(data, responseControle);
+//             if (resultByEntCont.success) {
+//                 res.status(201).json({
+//                     success: true,
+//                     message: 'Control created successfully!'
+//                 });
+//             } else {
+//                 res.status(400).json({
+//                     success: false,
+//                     message: resultByEntCont.message
+//                 })
+//             }
+
+//         } else {
+//             res.status(400).json({
+//                 success: false,
+//                 message: 'Error while creating control!'
+//             })
+
+//         }
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message: error.message
+//         })
+//         throw error.message
+//     } finally {
+//         connect.release(); // Toujours libérer la connexion
+//     }
+// }
+
 export const updateControls = async (req, res) => {
 
 }
